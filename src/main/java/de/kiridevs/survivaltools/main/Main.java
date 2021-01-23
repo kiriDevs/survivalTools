@@ -76,21 +76,23 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Saving home locations of online players...");
         FileConfiguration config = getConfig();
-        HashMap<UUID, Location> homeMap = HomeManager.getHomeMap();
-        Set<UUID> uuids = homeMap.keySet();
+        Collection<? extends Player> onlinePlayers = Bukkit.getServer().getOnlinePlayers();
+        for (Player player : onlinePlayers) {
+            UUID uuid = player.getUniqueId();
+            Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
+            for (String homeKey : homeKeys) {
+                String PATH_PREFIX = "homes." + uuid + "." + homeKey + ".";
+                Location homeLoc = HomeManager.getHome(player, homeKey);
 
-        for (UUID uuid : uuids) {
-            Location homeLoc = homeMap.get(uuid);
-            String PATH_PREFIX = "homes." + uuid + ".";
-
-            config.set(PATH_PREFIX+"x", homeLoc.getX());
-            config.set(PATH_PREFIX+"y", homeLoc.getY());
-            config.set(PATH_PREFIX+"z", homeLoc.getZ());
-            config.set(PATH_PREFIX+"yaw", homeLoc.getYaw());
-            config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
-            config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName()); // getWorld can't be null: world always added
+                //noinspection ConstantConditions // getWorld() can't be null: Locs w/o world can't be saved
+                config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName());
+                config.set(PATH_PREFIX+"x",     homeLoc.getX());
+                config.set(PATH_PREFIX+"y",     homeLoc.getY());
+                config.set(PATH_PREFIX+"z",     homeLoc.getZ());
+                config.set(PATH_PREFIX+"yaw",   homeLoc.getYaw());
+                config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
+            }
         }
-        saveConfig();
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully disabled!");
         super.onDisable();
