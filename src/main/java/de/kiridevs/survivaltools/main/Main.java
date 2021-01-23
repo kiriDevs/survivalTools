@@ -2,6 +2,7 @@ package de.kiridevs.survivaltools.main;
 
 import de.kiridevs.kiricore.Prefix;
 import de.kiridevs.kiricore.managers.MessageService;
+import de.kiridevs.survivaltools.commands.CMDhome;
 import de.kiridevs.survivaltools.commands.CMDsethome;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +26,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getCommand("home").setExecutor(new CMDhome(messageService));
         getCommand("sethome").setExecutor(new CMDsethome(messageService));
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully enabled!");
