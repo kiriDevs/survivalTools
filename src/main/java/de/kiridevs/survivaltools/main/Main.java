@@ -15,9 +15,9 @@ public class Main extends JavaPlugin {
     }};
 
     HashMap<String, String> defaultMessages = new HashMap<>() {{
-        put("noperm"     , "Sorry, but you don't have permission to that!");
-        put("playersonly", "Only players can use that command!"           );
-        put("syntax"     , "Please use the command like this: {0}"        );
+        put("noperm"     , "Sorry, but you don't have permission to that! (§6{0}§c)");
+        put("playersonly", "Only players can use that command!"                     );
+        put("syntax"     , "Please use the command like this: §6{0}"                );
     }};
 
     MessageService messageService = new MessageService(prefixHashMap, defaultMessages);
