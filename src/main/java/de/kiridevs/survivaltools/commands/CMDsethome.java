@@ -30,15 +30,24 @@ public class CMDsethome implements CommandExecutor {
             return true;
         }
 
-        if (!(args.length == 0)) {
-            ArrayList<String> completion = new ArrayList<>(){{ add("/sethome"); }};
+        if (args.length > 1) {
+            ArrayList<String> completion = new ArrayList<>(){{ add("/sethome [home]"); }};
             msgSer.sendErrorMessage(cmdSender, "syntax", completion);
             return true;
         }
 
         Player player = (Player) cmdSender;
+
+        String homeKey;
+        if (args.length == 0) {
+            homeKey = "home";
+        } else {
+            homeKey = args[0];
+        }
+
         Location loc = player.getLocation();
-        HomeManager.setHome(player, loc);
+
+        HomeManager.setHome(player, homeKey, loc);
         msgSer.sendSuccessMessage(cmdSender, "Your new home position was successfully set!");
 
         return true;
