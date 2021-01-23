@@ -10,8 +10,10 @@ import de.kiridevs.survivaltools.managers.HomeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -40,6 +42,31 @@ public class Main extends JavaPlugin {
         messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Registering commands...");
         getCommand("home").setExecutor(new CMDhome(messageService));
         getCommand("sethome").setExecutor(new CMDsethome(messageService));
+
+        messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Loading home location of online players...");
+        FileConfiguration config = getConfig();
+        Collection<? extends Player> onlinePlayers = Bukkit.getServer().getOnlinePlayers();
+
+        for (Player player : onlinePlayers) {
+            UUID uuid = player.getUniqueId();
+
+            if (config.get("homes." + uuid) == null) {
+                return; // Player doesn't have a home set
+            }
+
+            String KEY_PREFIX = "homes." + uuid + ".";
+            double homeX = config.getDouble(KEY_PREFIX + "x");
+            double homeY = config.getDouble(KEY_PREFIX + "y");
+            double homeZ = config.getDouble(KEY_PREFIX + "z");
+            float homeYaw = (float) config.getDouble(KEY_PREFIX + "yaw");
+            float homePitch = (float) config.getDouble(KEY_PREFIX + "pitch");
+            String homeWorldString = config.getString(KEY_PREFIX + "world");
+
+            assert homeWorldString != null; // World is always added in our case
+            Location homeLoc = new Location(Bukkit.getWorld(homeWorldString), homeX, homeY, homeZ, homeYaw, homePitch);
+
+            HomeManager.setHome(player, homeLoc);
+        }
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully enabled!");
         super.onEnable();
