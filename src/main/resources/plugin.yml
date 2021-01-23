@@ -1,0 +1,12 @@
+main: de.kiridevs.survivaltools.main.Main
+name: survivalTools
+version: 0.1.0
+author: kiriDevs
+
+description: A Minecraft Plugin aimed at providing you with some useful tools for your Survival Server
+
+commands:
+  home:
+    description: Teleports you to your home point
+  sethome:
+    description: Set your home point to a new location
