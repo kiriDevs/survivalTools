@@ -6,10 +6,15 @@ import de.kiridevs.survivaltools.commands.CMDhome;
 import de.kiridevs.survivaltools.commands.CMDsethome;
 import de.kiridevs.survivaltools.listeners.LISTonPlayerJoinEvent;
 import de.kiridevs.survivaltools.listeners.LISTonPlayerQuitEvent;
+import de.kiridevs.survivaltools.managers.HomeManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
+import java.util.Set;
+import java.util.UUID;
 
 public class Main extends JavaPlugin {
     HashMap<String, Prefix> prefixHashMap = new HashMap<>() {{
@@ -25,7 +30,6 @@ public class Main extends JavaPlugin {
     }};
 
     MessageService messageService = new MessageService(prefixHashMap, defaultMessages);
-
 
     @Override
     public void onEnable() {
@@ -43,6 +47,24 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Saving home locations of online players...");
+        FileConfiguration config = getConfig();
+        HashMap<UUID, Location> homeMap = HomeManager.getHomeMap();
+        Set<UUID> uuids = homeMap.keySet();
+
+        for (UUID uuid : uuids) {
+            Location homeLoc = homeMap.get(uuid);
+            String PATH_PREFIX = "homes." + uuid + ".";
+
+            config.set(PATH_PREFIX+"x", homeLoc.getX());
+            config.set(PATH_PREFIX+"y", homeLoc.getY());
+            config.set(PATH_PREFIX+"z", homeLoc.getZ());
+            config.set(PATH_PREFIX+"yaw", homeLoc.getYaw());
+            config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
+            config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName()); // getWorld can't be null: world always added
+        }
+        saveConfig();
+
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully disabled!");
         super.onDisable();
     }
