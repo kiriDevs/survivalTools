@@ -38,8 +38,14 @@ public class HomeManager {
      *                  home location of
      * @param newHome The Location object of the new home location;
      *                should be world-including
+     * @throws IllegalArgumentException Thrown when the Location (param
+     *                                  newHome) does not include a world
      */
     public static void setHome(Player forPlayer, Location newHome) {
+        if (newHome.getWorld() == null) {
+            throw new IllegalArgumentException("No world was included in the passed Location!");
+        }
+
         homeMap.put(forPlayer.getUniqueId(), newHome);
     }
 
