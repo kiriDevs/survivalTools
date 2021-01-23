@@ -17,6 +17,10 @@ public class HomeGroup {
     }
 
     public void setHome(String key, Location pointsToLocation) {
+        if (pointsToLocation.getWorld() == null) {
+            throw new IllegalArgumentException("The passed Location doesn't include a world!");
+        }
+
         locationHashMap.put(key, pointsToLocation);
     }
 
