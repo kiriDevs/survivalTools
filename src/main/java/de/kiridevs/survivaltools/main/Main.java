@@ -4,6 +4,7 @@ import de.kiridevs.kiricore.Prefix;
 import de.kiridevs.kiricore.managers.MessageService;
 import de.kiridevs.survivaltools.commands.CMDhome;
 import de.kiridevs.survivaltools.commands.CMDsethome;
+import de.kiridevs.survivaltools.listeners.LISTonPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,8 +25,13 @@ public class Main extends JavaPlugin {
 
     MessageService messageService = new MessageService(prefixHashMap, defaultMessages);
 
+
     @Override
     public void onEnable() {
+        messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Registering listeners...");
+        Bukkit.getPluginManager().registerEvents(new LISTonPlayerQuitEvent(messageService, this), this);
+
+        messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Registering commands...");
         getCommand("home").setExecutor(new CMDhome(messageService));
         getCommand("sethome").setExecutor(new CMDsethome(messageService));
 
