@@ -2,7 +2,6 @@ package de.kiridevs.survivaltools.listeners;
 
 import de.kiridevs.kiricore.managers.MessageService;
 import de.kiridevs.survivaltools.managers.HomeManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -11,36 +10,37 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Set;
+import java.util.UUID;
+
 public class LISTonPlayerQuitEvent implements Listener {
-    Plugin survivaltools;
+    Plugin survivalTools;
     MessageService msgSer;
+    FileConfiguration config;
     public LISTonPlayerQuitEvent(MessageService messageService, Plugin plugin) {
+        this.survivalTools = plugin;
         this.msgSer = messageService;
-        this.survivaltools = plugin;
+        this.config = plugin.getConfig();
     }
 
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent playerQuitEvent) {
         Player player = playerQuitEvent.getPlayer();
+        UUID uuid = player.getUniqueId();
 
-        Location homeLoc = HomeManager.getHome(player);
+        Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
+        for (String homeKey : homeKeys) {
+            String PATH_PREFIX = "homes." + uuid + "." + "homeKey" + ".";
+            Location homeLoc = HomeManager.getHome(player, homeKey);
 
-        if (homeLoc == null) {
-            msgSer.sendErrorMessage(Bukkit.getConsoleSender(), player.getDisplayName() + " didn't set a home location!");
-            return;
+            //noinspection ConstantConditions // getWorld() can't be null: Locs w/o world can't be saved
+            config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName());
+            config.set(PATH_PREFIX+"x",     homeLoc.getX());
+            config.set(PATH_PREFIX+"y",     homeLoc.getY());
+            config.set(PATH_PREFIX+"z",     homeLoc.getZ());
+            config.set(PATH_PREFIX+"yaw",   homeLoc.getYaw());
+            config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
         }
-
-        FileConfiguration config = survivaltools.getConfig();
-        final String PATH_PREFIX = "homes." + player.getUniqueId().toString() + ".";
-
-        config.set(PATH_PREFIX + "x", homeLoc.getX());
-        config.set(PATH_PREFIX + "y", homeLoc.getY());
-        config.set(PATH_PREFIX + "z", homeLoc.getZ());
-        config.set(PATH_PREFIX + "yaw", homeLoc.getYaw());
-        config.set(PATH_PREFIX + "pitch", homeLoc.getPitch());
-        //noinspection ConstantConditions // the location is saved by the plugin and always includes a world
-        config.set(PATH_PREFIX + "world", homeLoc.getWorld().getName());
-
-        survivaltools.saveConfig();
+        survivalTools.saveConfig();
     }
 }
