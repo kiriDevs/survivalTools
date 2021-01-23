@@ -41,7 +41,6 @@ public class LISTonPlayerJoinEvent implements Listener {
         if (homeWorldString == null) {
             return;
         }
-        Bukkit.getConsoleSender().sendMessage("hewo");
         World homeWorld = Bukkit.getWorld(homeWorldString);
 
         Location homeLocation = new Location(homeWorld, homeX, homeY, homeZ, homeYaw, homePitch);
