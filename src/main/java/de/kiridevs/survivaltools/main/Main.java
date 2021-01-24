@@ -9,6 +9,7 @@ import de.kiridevs.survivaltools.listeners.LISTonPlayerQuitEvent;
 import de.kiridevs.survivaltools.managers.HomeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,22 +51,24 @@ public class Main extends JavaPlugin {
         for (Player player : onlinePlayers) {
             UUID uuid = player.getUniqueId();
 
-            if (config.get("homes." + uuid) == null) {
-                return; // Player doesn't have a home set
+            String index = config.getString("homes." + uuid + ".index");
+            if (index == null) { return; }
+            String[] existingHomes = index.split(" ");
+
+            for (String homeKey : existingHomes) {
+                double locX = config.getDouble("homes." + uuid + "." + homeKey + "x");
+                double locY = config.getDouble("homes." + uuid + "." + homeKey + "y");
+                double locZ = config.getDouble("homes." + uuid + "." + homeKey + "z");
+                float locYaw = (float) config.getDouble("homes." + uuid + "." + homeKey + ".yaw");
+                float locPitch = (float) config.getDouble("homes." + uuid + "." + homeKey + ".pitch");
+                String locWorldName = config.getString("homes." + uuid + "." + homeKey + ".world");
+
+                assert locWorldName != null;
+                World locWorld = Bukkit.getWorld(locWorldName);
+                Location homeLocation = new Location(locWorld, locX, locY, locZ, locYaw, locPitch);
+
+                HomeManager.setHome(player, homeKey, homeLocation);
             }
-
-            String KEY_PREFIX = "homes." + uuid + ".";
-            double homeX = config.getDouble(KEY_PREFIX + "x");
-            double homeY = config.getDouble(KEY_PREFIX + "y");
-            double homeZ = config.getDouble(KEY_PREFIX + "z");
-            float homeYaw = (float) config.getDouble(KEY_PREFIX + "yaw");
-            float homePitch = (float) config.getDouble(KEY_PREFIX + "pitch");
-            String homeWorldString = config.getString(KEY_PREFIX + "world");
-
-            assert homeWorldString != null; // World is always added in our case
-            Location homeLoc = new Location(Bukkit.getWorld(homeWorldString), homeX, homeY, homeZ, homeYaw, homePitch);
-
-            HomeManager.setHome(player, homeLoc);
         }
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully enabled!");
