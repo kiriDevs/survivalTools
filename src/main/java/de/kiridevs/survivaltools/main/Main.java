@@ -100,7 +100,7 @@ public class Main extends JavaPlugin {
                 indexBuilder.append(homeKey);
                 indexBuilder.append(" ");
             }
-            String index = indexBuilder.substring(0, indexBuilder.length());
+            String index = indexBuilder.substring(0, indexBuilder.length()-1);
             config.set("homes." + uuid + ".index", index);
         }
 
