@@ -82,7 +82,9 @@ public class Main extends JavaPlugin {
         Collection<? extends Player> onlinePlayers = Bukkit.getServer().getOnlinePlayers();
         for (Player player : onlinePlayers) {
             UUID uuid = player.getUniqueId();
+
             Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
+            StringBuilder indexBuilder = new StringBuilder();
             for (String homeKey : homeKeys) {
                 String PATH_PREFIX = "homes." + uuid + "." + homeKey + ".";
                 Location homeLoc = HomeManager.getHome(player, homeKey);
@@ -94,7 +96,12 @@ public class Main extends JavaPlugin {
                 config.set(PATH_PREFIX+"z",     homeLoc.getZ());
                 config.set(PATH_PREFIX+"yaw",   homeLoc.getYaw());
                 config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
+
+                indexBuilder.append(homeKey);
+                indexBuilder.append(" ");
             }
+            String index = indexBuilder.substring(0, indexBuilder.length());
+            config.set("homes." + uuid + ".index", index);
         }
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully disabled!");

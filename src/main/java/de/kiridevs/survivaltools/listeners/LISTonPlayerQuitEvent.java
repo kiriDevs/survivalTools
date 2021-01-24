@@ -29,6 +29,7 @@ public class LISTonPlayerQuitEvent implements Listener {
         UUID uuid = player.getUniqueId();
 
         Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
+        StringBuilder indexBuilder = new StringBuilder();
         for (String homeKey : homeKeys) {
             String PATH_PREFIX = "homes." + uuid + "." + "homeKey" + ".";
             Location homeLoc = HomeManager.getHome(player, homeKey);
@@ -40,7 +41,12 @@ public class LISTonPlayerQuitEvent implements Listener {
             config.set(PATH_PREFIX+"z",     homeLoc.getZ());
             config.set(PATH_PREFIX+"yaw",   homeLoc.getYaw());
             config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
+
+            indexBuilder.append(homeKey);
+            indexBuilder.append(" ");
         }
+        String index = indexBuilder.substring(0, indexBuilder.length());
+        config.set("homes." + uuid + ".index", index);
         survivalTools.saveConfig();
     }
 }
