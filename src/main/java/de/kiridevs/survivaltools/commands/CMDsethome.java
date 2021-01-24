@@ -48,7 +48,7 @@ public class CMDsethome implements CommandExecutor {
         Location loc = player.getLocation();
 
         HomeManager.setHome(player, homeKey, loc);
-        msgSer.sendSuccessMessage(cmdSender, "Your new home position was successfully set!");
+        msgSer.sendSuccessMessage(cmdSender, "Your new home \"§6" + homeKey + "\"§a was successfully set!");
 
         return true;
     }
