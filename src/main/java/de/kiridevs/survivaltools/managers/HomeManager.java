@@ -18,12 +18,27 @@ public class HomeManager {
      * mapping players' UUIDs to HomeGroup objects.
      */
     private static HashMap<UUID, HomeGroup> homeGroupMap = new HashMap<>();
-    
+
+    /**
+     * Method to get a specific Location object of a specific home for a
+     * specific Player
+     *
+     * @param forPlayer The Player to get a home for
+     * @param key The player-chosen key for the home
+     * @return The Location object for the requested home
+     */
     public static Location getHome(Player forPlayer, String key) {
         UUID playerUuid = forPlayer.getUniqueId();
         return homeGroupMap.getOrDefault(playerUuid, new HomeGroup()).getHome(key);
     }
 
+    /**
+     * Method to set (or replace) a specific home for a specific player
+     *
+     * @param forPlayer The Player to set / change the home for
+     * @param key The player-specific home-key to save the new home under
+     * @param homeToSet The Location to set the home to
+     */
     public static void setHome(Player forPlayer, String key, Location homeToSet) {
         UUID playerUuid = forPlayer.getUniqueId();
 
@@ -32,6 +47,12 @@ public class HomeManager {
         homeGroupMap.put(playerUuid, manipulationHomeGroup);                                      // Save working copy
     }
 
+    /**
+     * Method to query the keys of all homes a spefic Player has set
+     *
+     * @param ofPlayer The Player to get the homeKeys from
+     * @return A String-Set containing the keys of all homes the queried player has set
+     */
     public static Set<String> getHomeGroupKeys(Player ofPlayer) {
         UUID playerUuid = ofPlayer.getUniqueId();
         HomeGroup homeGroup = homeGroupMap.getOrDefault(playerUuid, new HomeGroup());
