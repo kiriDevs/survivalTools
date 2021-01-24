@@ -31,7 +31,7 @@ public class LISTonPlayerQuitEvent implements Listener {
         Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
         StringBuilder indexBuilder = new StringBuilder();
         for (String homeKey : homeKeys) {
-            String PATH_PREFIX = "homes." + uuid + "." + "homeKey" + ".";
+            String PATH_PREFIX = "homes." + uuid + "." + homeKey + ".";
             Location homeLoc = HomeManager.getHome(player, homeKey);
 
             //noinspection ConstantConditions // getWorld() can't be null: Locs w/o world can't be saved
