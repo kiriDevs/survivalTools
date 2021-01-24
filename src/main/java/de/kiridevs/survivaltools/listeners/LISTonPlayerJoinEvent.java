@@ -34,9 +34,9 @@ public class LISTonPlayerJoinEvent implements Listener {
         String[] existingHomes = index.split(" ");
 
         for (String homeKey : existingHomes) {
-            double locX = config.getDouble("homes." + uuid + "." + homeKey + "x");
-            double locY = config.getDouble("homes." + uuid + "." + homeKey + "y");
-            double locZ = config.getDouble("homes." + uuid + "." + homeKey + "z");
+            double locX = config.getDouble("homes." + uuid + "." + homeKey + ".x");
+            double locY = config.getDouble("homes." + uuid + "." + homeKey + ".y");
+            double locZ = config.getDouble("homes." + uuid + "." + homeKey + ".z");
             float locYaw = (float) config.getDouble("homes." + uuid + "." + homeKey + ".yaw");
             float locPitch = (float) config.getDouble("homes." + uuid + "." + homeKey + ".pitch");
             String locWorldName = config.getString("homes." + uuid + "." + homeKey + ".world");
