@@ -1,9 +1,11 @@
 package de.kiridevs.survivaltools.managers;
 
+import de.kiridevs.survivaltools.HomeGroup;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -12,52 +14,28 @@ import java.util.UUID;
  */
 public class HomeManager {
     /**
-     * The Map the home locations are saved to,
-     * mapping players' UUIDs to Location objects.
+     * The Map the HomeGroups for every Player are saved to,
+     * mapping players' UUIDs to HomeGroup objects.
      */
-    private static HashMap<UUID, Location> homeMap = new HashMap<>();
-
-
-    /**
-    * A function to get a Location object of the currently set
-    * home location of the queried player.
-    *
-    * @param forPlayer The player to get the home location for
-    * @return A world-including Location object when there is one,
-    *         null if a Player doesn't have a home location set.
-    */
-    public static Location getHome(Player forPlayer) {
-        return homeMap.getOrDefault(forPlayer.getUniqueId(), null);
+    private static HashMap<UUID, HomeGroup> homeGroupMap = new HashMap<>();
+    
+    public static Location getHome(Player forPlayer, String key) {
+        UUID playerUuid = forPlayer.getUniqueId();
+        return homeGroupMap.getOrDefault(playerUuid, new HomeGroup()).getHome(key);
     }
 
-    /**
-     * A method to update the home location of the given player to
-     * the given Location object
-     *
-     * @param forPlayer The Player object of the player to update the
-     *                  home location of
-     * @param newHome The Location object of the new home location;
-     *                should be world-including
-     * @throws IllegalArgumentException Thrown when the Location (param
-     *                                  newHome) does not include a world
-     */
-    public static void setHome(Player forPlayer, Location newHome) {
-        if (newHome.getWorld() == null) {
-            throw new IllegalArgumentException("No world was included in the passed Location!");
-        }
+    public static void setHome(Player forPlayer, String key, Location homeToSet) {
+        UUID playerUuid = forPlayer.getUniqueId();
 
-        homeMap.put(forPlayer.getUniqueId(), newHome);
+        HomeGroup manipulationHomeGroup = homeGroupMap.getOrDefault(playerUuid, new HomeGroup()); //  Get working copy
+        manipulationHomeGroup.setHome(key, homeToSet);                                            // Edit working copy
+        homeGroupMap.put(playerUuid, manipulationHomeGroup);                                      // Save working copy
     }
 
-    /**
-     * A method to return the full Map of home locations currently loaded
-     * (only locations of online players will be loaded at any given time)
-     *
-     * @return A HashMap mapping a Location object to a Players' UUID;
-     *         The Location object will contain the currently set
-     *         home location of the player
-     */
-    public static HashMap<UUID, Location> getHomeMap() {
-        return homeMap;
+    public static Set<String> getHomeGroupKeys(Player ofPlayer) {
+        UUID playerUuid = ofPlayer.getUniqueId();
+        HomeGroup homeGroup = homeGroupMap.getOrDefault(playerUuid, new HomeGroup());
+
+        return homeGroup.getHomeKeySet();
     }
 }

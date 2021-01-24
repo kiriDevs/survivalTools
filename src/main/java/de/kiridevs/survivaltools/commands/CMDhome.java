@@ -27,20 +27,28 @@ public class CMDhome implements CommandExecutor {
             return true;
         }
 
-        if (!(args.length == 0)) {
-            ArrayList<String> completion = new ArrayList<>() {{ add("/home"); }};
+        if (args.length > 1) {
+            ArrayList<String> completion = new ArrayList<>() {{ add("/home [home]"); }};
             msgSer.sendErrorMessage(cmdSender, "syntax", completion);
             return true;
         }
 
         Player player = (Player) cmdSender;
-        Location playerHome = HomeManager.getHome(player);
+
+        String homeKey;
+        if (args.length == 0) {
+            homeKey = "home";
+        } else {
+            homeKey = args[0];
+        }
+
+        Location playerHome = HomeManager.getHome(player, homeKey);
 
         if (playerHome == null) {
-            msgSer.sendErrorMessage(player, "You did not set a home point yet!");
+            msgSer.sendErrorMessage(player, "No home with the name \"§6" + homeKey + "§c\" was found!");
         } else {
             player.teleport(playerHome);
-            msgSer.sendSuccessMessage(player, "You were teleported to your home position!");
+            msgSer.sendSuccessMessage(player, "You were teleported to your home §6\""+ homeKey + "§a\"!");
         }
         return true;
     }

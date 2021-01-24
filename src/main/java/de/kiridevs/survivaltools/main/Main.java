@@ -9,6 +9,7 @@ import de.kiridevs.survivaltools.listeners.LISTonPlayerQuitEvent;
 import de.kiridevs.survivaltools.managers.HomeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,22 +51,24 @@ public class Main extends JavaPlugin {
         for (Player player : onlinePlayers) {
             UUID uuid = player.getUniqueId();
 
-            if (config.get("homes." + uuid) == null) {
-                return; // Player doesn't have a home set
+            String index = config.getString("homes." + uuid + ".index");
+            if (index == null) { return; }
+            String[] existingHomes = index.split(" ");
+
+            for (String homeKey : existingHomes) {
+                double locX = config.getDouble("homes." + uuid + "." + homeKey + ".x");
+                double locY = config.getDouble("homes." + uuid + "." + homeKey + ".y");
+                double locZ = config.getDouble("homes." + uuid + "." + homeKey + ".z");
+                float locYaw = (float) config.getDouble("homes." + uuid + "." + homeKey + ".yaw");
+                float locPitch = (float) config.getDouble("homes." + uuid + "." + homeKey + ".pitch");
+                String locWorldName = config.getString("homes." + uuid + "." + homeKey + ".world");
+
+                assert locWorldName != null;
+                World locWorld = Bukkit.getWorld(locWorldName);
+                Location homeLocation = new Location(locWorld, locX, locY, locZ, locYaw, locPitch);
+
+                HomeManager.setHome(player, homeKey, homeLocation);
             }
-
-            String KEY_PREFIX = "homes." + uuid + ".";
-            double homeX = config.getDouble(KEY_PREFIX + "x");
-            double homeY = config.getDouble(KEY_PREFIX + "y");
-            double homeZ = config.getDouble(KEY_PREFIX + "z");
-            float homeYaw = (float) config.getDouble(KEY_PREFIX + "yaw");
-            float homePitch = (float) config.getDouble(KEY_PREFIX + "pitch");
-            String homeWorldString = config.getString(KEY_PREFIX + "world");
-
-            assert homeWorldString != null; // World is always added in our case
-            Location homeLoc = new Location(Bukkit.getWorld(homeWorldString), homeX, homeY, homeZ, homeYaw, homePitch);
-
-            HomeManager.setHome(player, homeLoc);
         }
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully enabled!");
@@ -76,21 +79,30 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         messageService.sendInfoMessage(Bukkit.getConsoleSender(), "Saving home locations of online players...");
         FileConfiguration config = getConfig();
-        HashMap<UUID, Location> homeMap = HomeManager.getHomeMap();
-        Set<UUID> uuids = homeMap.keySet();
+        Collection<? extends Player> onlinePlayers = Bukkit.getServer().getOnlinePlayers();
+        for (Player player : onlinePlayers) {
+            UUID uuid = player.getUniqueId();
 
-        for (UUID uuid : uuids) {
-            Location homeLoc = homeMap.get(uuid);
-            String PATH_PREFIX = "homes." + uuid + ".";
+            Set<String> homeKeys = HomeManager.getHomeGroupKeys(player);
+            StringBuilder indexBuilder = new StringBuilder();
+            for (String homeKey : homeKeys) {
+                String PATH_PREFIX = "homes." + uuid + "." + homeKey + ".";
+                Location homeLoc = HomeManager.getHome(player, homeKey);
 
-            config.set(PATH_PREFIX+"x", homeLoc.getX());
-            config.set(PATH_PREFIX+"y", homeLoc.getY());
-            config.set(PATH_PREFIX+"z", homeLoc.getZ());
-            config.set(PATH_PREFIX+"yaw", homeLoc.getYaw());
-            config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
-            config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName()); // getWorld can't be null: world always added
+                //noinspection ConstantConditions // getWorld() can't be null: Locs w/o world can't be saved
+                config.set(PATH_PREFIX+"world", homeLoc.getWorld().getName());
+                config.set(PATH_PREFIX+"x",     homeLoc.getX());
+                config.set(PATH_PREFIX+"y",     homeLoc.getY());
+                config.set(PATH_PREFIX+"z",     homeLoc.getZ());
+                config.set(PATH_PREFIX+"yaw",   homeLoc.getYaw());
+                config.set(PATH_PREFIX+"pitch", homeLoc.getPitch());
+
+                indexBuilder.append(homeKey);
+                indexBuilder.append(" ");
+            }
+            String index = indexBuilder.substring(0, indexBuilder.length()-1);
+            config.set("homes." + uuid + ".index", index);
         }
-        saveConfig();
 
         messageService.sendSuccessMessage(Bukkit.getConsoleSender(), "The PlugIn was successfully disabled!");
         super.onDisable();
