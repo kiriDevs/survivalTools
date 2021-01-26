@@ -1,4 +1,11 @@
+# Ignore IntelliJ IDEA default project files
 .idea
 *.iml
 
+# Ignore VSCode default project files
+.classpath
+.project
+.settings
+
+# Ignore maven target folder
 target
